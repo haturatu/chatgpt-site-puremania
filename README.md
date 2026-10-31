@@ -1,6 +1,8 @@
 # Pure Mania on ChatGPT Sites
 
-This Site keeps Pure Mania's original browser interface, navigation, keyboard shortcuts, image gallery, media player, search, text editor, upload manager and visual file list. The original frontend modules, templates and styles are served from `/static`; the Site API maps the same file-manager operations onto the bound Cloudflare R2 bucket.
+ChatGPT Sites documents R2 object storage as having no fixed storage limit as of October 31, 2026. For that reason, this repository is a full migration of [Pure Mania](https://github.com/haturatu/puremania/) for ChatGPT Sites (Cloudflare). It carries over the original frontend and file-management workflows, with file operations backed by the Site's Cloudflare R2 binding. Shared Sites usage limits still apply.
+
+The original browser interface includes navigation, keyboard shortcuts, an image gallery, a media player, search, a text editor, an upload manager and a visual file list. Frontend modules, templates and styles are served from `/static`. Runtime-specific differences are listed below.
 
 ## Uploads
 
