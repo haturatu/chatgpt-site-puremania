@@ -14,7 +14,7 @@
     "db:generate": "drizzle-kit generate"
   },
   "dependencies": {
-    "@base-ui/react": "^1.7.0",
+    "@base-ui/react": "^1.9.0",
     "@hookform/resolvers": "^6.0.0",
     "@shadcn/react": "^0.3.0",
     "class-variance-authority": "0.7.1",
