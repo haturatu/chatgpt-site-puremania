@@ -4,6 +4,17 @@ import type { ConnectorBinding } from "../lib/connector-contract.mjs";
 
 const worker = {
   fetch(request: Request, env: Cloudflare.Env, ctx: ExecutionContext<{ CONNECTORS?: ConnectorBinding }>) {
+    if (!import.meta.env.DEV && new URL(request.url).pathname.startsWith("/api/")) {
+      const authenticatedUserId = request.headers.get("oai-authenticated-user-id");
+      const authenticatedUserEmail = request.headers.get("oai-authenticated-user-email");
+      if (!authenticatedUserId || !authenticatedUserEmail) {
+        return Response.json(
+          { error: "ChatGPT authentication is required." },
+          { status: 401, headers: { "Cache-Control": "private, no-store" } },
+        );
+      }
+    }
+
     let binding = ctx.props?.CONNECTORS;
     // Local preview emulates the same request-scoped capability. This branch and
     // the auxiliary service binding are absent from production builds.
