@@ -1,0 +1,176 @@
+import { getTemplateContent } from './template.js';
+import { TEMPLATES } from './template-registry.js';
+
+const uploadTemplates = {
+    header: TEMPLATES.uploadHeader,
+    empty: TEMPLATES.uploadEmpty,
+    section: TEMPLATES.uploadSection,
+    table: TEMPLATES.uploadTable,
+    row: TEMPLATES.uploadRow
+};
+const template = name => getTemplateContent(uploadTemplates[name]);
+
+// Uploads page deliberately shares aria2c's table classes: transfers have the
+// same lifecycle (active, paused, complete) even though their transport differs.
+export class UploadPageHandler {
+    constructor(app) {
+        this.app = app;
+        this.selectedKeys = new Set();
+        this.active = false;
+        this.jobs = [];
+        this.refreshController = null;
+        this.refreshRequested = false;
+        // Local EventTarget and BroadcastChannel notifications share one
+        // invalidation path; refresh() resolves authoritative server state.
+        this.onJobsChanged = () => this.refresh();
+        // Server events invalidate the view; REST/IndexedDB remain the source
+        // of truth so coalesced or reconnected streams cannot render stale data.
+        this.onUploadState = event => {
+            if (event.detail?.uploadId) void this.refresh();
+        };
+        this.onServerSync = () => {
+            if (this.active) void this.refresh();
+        };
+    }
+
+    get isActive() {
+        return this.app.store.getState().route.page === 'uploads';
+    }
+
+    enter() {
+        if (this.active) return;
+        this.active = true;
+        this.app.eventBus.addEventListener('upload-jobs-changed', this.onJobsChanged);
+        this.app.eventBus.addEventListener('server:upload', this.onUploadState);
+        this.app.eventBus.addEventListener('server:sync', this.onServerSync);
+        document.querySelector('.breadcrumbs')?.style.setProperty('display', 'none');
+        void this.refresh();
+    }
+
+    exit() {
+        if (!this.active) return;
+        this.active = false;
+        this.refreshController?.abort();
+        this.refreshController = null;
+        this.refreshRequested = false;
+        this.app.eventBus.removeEventListener('upload-jobs-changed', this.onJobsChanged);
+        this.app.eventBus.removeEventListener('server:upload', this.onUploadState);
+        this.app.eventBus.removeEventListener('server:sync', this.onServerSync);
+        document.querySelector('.breadcrumbs')?.style.removeProperty('display');
+    }
+
+    async refresh() {
+        if (!this.active) return;
+        if (this.refreshController) {
+            this.refreshRequested = true;
+            return;
+        }
+        const controller = new AbortController();
+        this.refreshController = controller;
+        try {
+            const jobs = await this.app.uploader.listJobs(controller.signal);
+            if (this.active && !controller.signal.aborted) {
+                this.jobs = jobs;
+                this.render(jobs);
+            }
+        } catch (error) {
+            if (error.name !== 'AbortError') console.error('Failed to refresh uploads', error);
+        } finally {
+            if (this.refreshController === controller) this.refreshController = null;
+            if (this.refreshRequested && this.active) {
+                this.refreshRequested = false;
+                void this.refresh();
+            }
+        }
+    }
+
+    render(jobs) {
+        this.selectedKeys = new Set([...this.selectedKeys].filter(key => jobs.some(job => job.key === key)));
+        const container = document.querySelector('.file-browser');
+        if (!container) return;
+        container.innerHTML = '';
+        const header = document.createElement('div');
+        header.className = 'aria2c-header';
+        header.appendChild(template('header'));
+        header.querySelector('.upload-back-btn').addEventListener('click', () => this.app.router.navigate('/'));
+        container.appendChild(header);
+        if (!jobs.length) {
+            const empty = document.createElement('div');
+            empty.className = 'no-search-results';
+            empty.appendChild(template('empty'));
+            container.appendChild(empty);
+            return;
+        }
+        const section = document.createElement('div');
+        section.className = 'aria2c-section';
+        section.appendChild(template('section'));
+        section.querySelector('.upload-page-count').textContent = `Resumable Uploads (${jobs.length})`;
+        const table = document.createElement('table');
+        table.className = 'table-view aria2c-table upload-jobs-table';
+        table.appendChild(template('table'));
+        const body = table.querySelector('tbody');
+        jobs.forEach(job => body.appendChild(this.row(job)));
+        const selected = () => jobs.filter(job => this.selectedKeys.has(job.key));
+        const selectAll = table.querySelector('.upload-select-all');
+        selectAll.checked = jobs.length > 0 && jobs.every(job => this.selectedKeys.has(job.key));
+        selectAll.addEventListener('change', () => {
+            jobs.forEach(job => selectAll.checked ? this.selectedKeys.add(job.key) : this.selectedKeys.delete(job.key));
+            this.render(jobs);
+        });
+        section.querySelector('.bulk-resume').addEventListener('click', () => {
+            const resumable = selected().filter(job => job.state === 'paused' || job.state === 'offline');
+            if (!resumable.length) return this.app.ui.showToast('Resume upload', 'Select paused uploads first.', 'info');
+            this.app.uploader.requestResumeMany(resumable.map(job => job.key)).catch(error => this.app.ui.showToast('Resume upload', error.message, 'error'));
+        });
+        section.querySelector('.bulk-discard').addEventListener('click', () => this.discardMany(selected()));
+        section.querySelector('.bulk-discard-all').addEventListener('click', () => this.discardMany(jobs));
+        section.appendChild(table);
+        container.appendChild(section);
+    }
+
+    row(job) {
+        const row = document.createElement('tr');
+        const total = job.totalBytes || job.size || 0;
+        const uploaded = Math.min(job.uploadedBytes || 0, total);
+        const progress = total ? uploaded / total * 100 : 100;
+        const name = job.relativePath.split('/').pop();
+        row.appendChild(template('row'));
+        const checkbox = row.querySelector('.upload-select');
+        checkbox.checked = this.selectedKeys.has(job.key);
+        checkbox.addEventListener('change', () => { checkbox.checked ? this.selectedKeys.add(job.key) : this.selectedKeys.delete(job.key); });
+        row.querySelector('.file-name').textContent = name;
+        row.querySelector('.file-name').title = job.relativePath;
+        row.querySelector('.file-size').textContent = this.app.ui.formatFileSize(total);
+        const progressBar = row.querySelector('.ui-progress');
+        progressBar.value = progress;
+        progressBar.textContent = `${progress.toFixed(2)}%`;
+        row.querySelector('.progress-text').textContent = `${progress.toFixed(2)}%`;
+        row.querySelector('.status').textContent = job.state;
+        row.querySelector('.upload-destination').textContent = job.destination;
+        const actions = row.querySelector('.actions');
+        if (job.state === 'active') {
+            const show = document.createElement('button');
+            show.className = 'btn btn-sm btn-info'; show.textContent = 'Show progress';
+            show.addEventListener('click', () => this.app.progressManager.restore());
+            actions.appendChild(show);
+        } else if (job.state === 'paused' || job.state === 'offline') {
+            const resume = document.createElement('button');
+            resume.className = 'btn btn-sm btn-success'; resume.textContent = 'Select file to resume';
+            resume.addEventListener('click', () => this.app.uploader.requestResume(job.key).catch(error => this.app.ui.showToast('Resume upload', error.message, 'error')));
+            actions.appendChild(resume);
+        }
+        const discard = document.createElement('button');
+        discard.className = 'btn btn-sm btn-danger'; discard.textContent = 'Discard';
+        discard.addEventListener('click', () => this.app.uploader.discardJob(job.key).then(() => this.refresh()));
+        actions.appendChild(discard);
+        return row;
+    }
+
+    async discardMany(jobs) {
+        if (!jobs.length) return this.app.ui.showToast('Discard upload', 'Select uploads first.', 'info');
+        for (const job of jobs) await this.app.uploader.discardJob(job.key);
+        this.selectedKeys.clear();
+        await this.refresh();
+    }
+}
+

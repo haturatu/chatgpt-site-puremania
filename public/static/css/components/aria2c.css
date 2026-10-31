@@ -1,0 +1,122 @@
+/* Aria2c Page Specific Styles */
+
+.aria2c-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 10px 15px;
+    background-color: var(--background-secondary);
+    border-bottom: 1px solid var(--border-color);
+}
+
+.aria2c-title {
+    font-size: 1.5em;
+    font-weight: bold;
+    color: var(--text-primary);
+}
+
+.aria2c-section {
+    margin: 15px;
+}
+
+.aria2c-section h3 {
+    font-size: 1.2em;
+    margin-bottom: 10px;
+    color: var(--text-secondary);
+    border-bottom: 2px solid var(--accent-primary);
+    padding-bottom: 5px;
+}
+
+.aria2c-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+.aria2c-table th,
+.aria2c-table td {
+    padding: 8px 12px;
+    text-align: left;
+    border-bottom: 1px solid var(--border-color);
+}
+
+.aria2c-table th {
+    background-color: var(--background-tertiary);
+}
+
+.aria2c-table .file-name {
+    max-width: 300px;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    display: inline-block;
+    vertical-align: middle;
+}
+
+.aria2c-table .ui-progress {
+    height: 20px;
+    display: inline-block;
+    width: min(100%, 220px);
+    vertical-align: middle;
+}
+
+.aria2c-table .progress-text {
+    margin-inline-start: 6px;
+    color: var(--text-secondary);
+    font-size: 0.8em;
+    font-weight: bold;
+}
+
+.aria2c-table .actions {
+    white-space: nowrap;
+}
+
+.aria2c-table .actions .btn {
+    margin-right: 5px;
+}
+
+.aria2c-section { overflow-x: auto; }
+
+/* Keep wide transfer tables usable on phones while matching the application
+ * theme instead of showing the browser's default horizontal scrollbar. */
+.aria2c-section {
+    scrollbar-width: thin;
+    scrollbar-color: var(--accent-primary) var(--bg-tertiary);
+}
+.aria2c-section::-webkit-scrollbar { height: 8px; }
+.aria2c-section::-webkit-scrollbar-track {
+    background: var(--bg-tertiary);
+    border-radius: 999px;
+}
+.aria2c-section::-webkit-scrollbar-thumb {
+    background: var(--accent-primary);
+    border: 2px solid var(--bg-tertiary);
+    border-radius: 999px;
+}
+.aria2c-section::-webkit-scrollbar-thumb:hover { background: var(--accent-hover, var(--accent-primary)); }
+
+/* Upload rows use the same transfer-table visual language as aria2, but their
+ * longer paths and action labels need stable, non-overlapping table geometry. */
+.upload-jobs-table {
+    min-width: 860px;
+    table-layout: fixed;
+}
+.upload-jobs-table .file-name {
+    display: table-cell;
+    width: 20%;
+}
+.upload-jobs-table .file-size { width: 10%; white-space: nowrap; }
+.upload-jobs-table .upload-progress-cell { width: 18%; min-width: 150px; }
+.upload-jobs-table .upload-progress-cell .ui-progress { min-width: 140px; }
+.upload-jobs-table .upload-destination { max-width: none; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.upload-jobs-table .actions {
+    min-width: 210px;
+    white-space: normal;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 5px;
+}
+.upload-jobs-table .actions .btn { margin-right: 0; }
+.upload-bulk-actions { display: flex; flex-wrap: wrap; gap: 8px; margin: 0 0 12px; }
+.upload-jobs-table th:first-child,
+.upload-jobs-table td:first-child { width: 36px; text-align: center; }
+

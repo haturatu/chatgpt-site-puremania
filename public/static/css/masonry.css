@@ -1,0 +1,89 @@
+.masonry-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); /* 少し大きめに */
+  gap: 20px; /* アイテム間の余白を広げる */
+  padding: 10px; /* グリッド全体に余白を追加 */
+}
+
+.masonry-item {
+  background-color: var(--bg-secondary);
+  border: 1px solid var(--border-color);
+  border-radius: 8px; /* 角丸を強めて柔らかさを出す */
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  cursor: pointer;
+  position: relative;
+  content-visibility: auto;
+  contain-intrinsic-size: auto 240px;
+}
+
+.masonry-item:hover {
+  border-color: var(--accent-primary);
+  transform: translateY(-4px); /* 少し持ち上がる感を強める */
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.25);
+}
+
+.masonry-image {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: cover; /* 画像をきれいに収める */
+}
+
+.masonry-image.image-pending { min-height: 120px; background: var(--bg-tertiary); }
+
+.masonry-info {
+  padding: 12px;
+  background: rgba(0, 0, 0, 0.65); /* 背景を暗めにして文字を読みやすく */
+  backdrop-filter: blur(4px); /* 半透明時にぼかしを追加して見やすさUP */
+  position: absolute;
+  inset-block-end: 0;
+  inset-inline: 0;
+  transform: translateY(100%);
+  transition: transform 0.3s ease;
+}
+
+.masonry-item:hover .masonry-info {
+  transform: translateY(0);
+}
+
+.masonry-name {
+  font-size: 0.9rem;
+  font-weight: 600; /* 目立たせる */
+  margin-block-end: 6px;
+  color: var(--text-primary); /* 読みやすい文字色 */
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.masonry-size {
+  font-size: 0.8rem;
+  color: var(--text-secondary);
+}
+
+@media (max-width: 768px) {
+  .masonry-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+  }
+}
+
+.masonry-item.selected {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-primary) inset;
+}
+
+.masonry-item:has(input[type="checkbox"]:checked) {
+  border-color: var(--accent-primary);
+  box-shadow: 0 0 0 3px var(--accent-primary) inset;
+}
+
+@container file-browser (width < 700px) {
+  .masonry-grid {
+    grid-template-columns: repeat(auto-fill, minmax(120px, 1fr));
+    gap: 10px;
+    padding: 4px;
+  }
+}
+

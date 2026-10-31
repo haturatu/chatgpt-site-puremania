@@ -1,0 +1,58 @@
+<div class="app-container">
+    <aside class="sidebar">
+        <div class="logo"><h1>Pure Mania</h1></div>
+        <nav class="file-navigation" aria-label="File manager">
+            <a href="/" class="nav-item active" data-path="/" aria-current="page">
+                <span class="nav-icon" aria-hidden="true">📁</span><span>Home</span>
+            </a>
+            <div id="specific-dirs-container"></div>
+            <a href="/system/uploads" class="nav-item" id="upload-status-btn" data-path="/system/uploads">
+                <span class="nav-icon" aria-hidden="true">⇧</span><span>Uploads</span>
+            </a>
+            <a href="/system/aria2c" class="nav-item" id="aria2c-status-btn" data-path="/system/aria2c">
+                <span class="nav-icon" aria-hidden="true">⇩</span><span>aria2c</span>
+            </a>
+        </nav>
+        <div class="storage-info">
+            <div class="storage-text"><span id="storage-used">0 B</span> / <span id="storage-total">0 B</span></div>
+            <progress class="storage-progress" id="storage-progress" value="0" max="100" aria-label="Storage usage">0%</progress>
+        </div>
+    </aside>
+    <div class="main-content">
+        <div class="header">
+            <div class="breadcrumb"><span class="breadcrumb-item" data-path="/">Root</span></div>
+            <div class="search-container">
+                <input
+                    type="search"
+                    class="search-input"
+                    placeholder="Search…"
+                    autocomplete="off"
+                    enterkeyhint="search"
+                    spellcheck="false"
+                    role="combobox"
+                    aria-autocomplete="list"
+                    aria-controls="cdCompletion"
+                    aria-expanded="false"
+                >
+                <button class="search-options" type="button" title="Search options" aria-label="Search options">⚙️</button>
+            </div>
+        </div>
+        <div class="file-browser" tabindex="-1"></div>
+    </div>
+</div>
+<div id="toast-container"></div>
+<div id="loading-overlay" style="display: none;" aria-hidden="true"><div class="loading-spinner"></div></div>
+<dialog id="aria2cStatusDialog" class="aria2c-dialog" aria-labelledby="aria2c-status-title">
+    <header class="aria2c-dialog__header">
+        <h2 id="aria2c-status-title">Aria2c Downloads</h2>
+        <form method="dialog">
+            <button class="dialog-close" type="submit" aria-label="Close">&times;</button>
+        </form>
+    </header>
+    <div class="aria2c-dialog__body">
+        <div id="aria2c-active-downloads"><h3>Active</h3><div class="download-list"></div></div>
+        <div id="aria2c-waiting-downloads"><h3>Waiting</h3><div class="download-list"></div></div>
+        <div id="aria2c-stopped-downloads"><h3>Stopped/Finished</h3><div class="download-list"></div></div>
+    </div>
+</dialog>
+

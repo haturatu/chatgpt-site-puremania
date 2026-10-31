@@ -1,0 +1,128 @@
+/* Editor Modal */
+.editor-modal {
+    /* Uses dialog::backdrop for the modal backdrop */
+}
+
+.editor-modal .dialog-panel {
+    width: 90vw;
+    height: 90vh;
+    max-width: 1600px; /* Add a max-width for very large screens */
+    max-height: 95vh;
+    padding: 0; /* Remove padding to have content flush to edges */
+    display: flex;
+    flex-direction: column;
+    overflow: hidden; /* Prevent modal itself from scrolling */
+}
+
+/* Editor Header */
+.editor-modal .dialog-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 12px 20px;
+    border-bottom: 1px solid var(--border-color);
+    flex-shrink: 0; /* Prevent header from shrinking */
+}
+
+.editor-filename {
+    font-family: 'SF Mono', 'Courier New', monospace;
+    font-size: 1rem;
+    color: var(--text-primary);
+    font-weight: 500;
+}
+
+.editor-actions {
+    display: flex;
+    gap: 15px;
+}
+
+/* Editor Body */
+.editor-modal .dialog-body {
+    padding: 0;
+    flex-grow: 1; /* Allow body to fill available space */
+    overflow: hidden; /* CM scroller will handle scrolling */
+}
+
+.editor-container {
+    height: 100%;
+    width: 100%;
+}
+
+/* This is set in JS, but good to have in CSS for clarity */
+.cm-editor {
+    height: 100%;
+}
+
+/* Status Bar */
+.editor-status-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 8px 20px;
+    background-color: var(--bg-secondary);
+    border-top: 1px solid var(--border-color);
+    font-family: 'SF Mono', 'Courier New', monospace;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+    flex-shrink: 0; /* Prevent footer from shrinking */
+}
+
+.status-left, .status-right {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+}
+
+#status-selection {
+    color: var(--text-muted);
+}
+
+/* Vim Toggle Switch */
+.vim-toggle {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+}
+
+.vim-toggle-label {
+    cursor: pointer;
+    user-select: none;
+    color: var(--text-secondary);
+    font-size: 0.8rem;
+}
+
+.vim-toggle-checkbox {
+    appearance: none;
+    -webkit-appearance: none;
+    position: relative;
+    width: 32px;
+    height: 18px;
+    background-color: var(--bg-tertiary);
+    border-radius: 9px;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+    border: 1px solid var(--border-color);
+}
+
+.vim-toggle-checkbox::before {
+    content: '';
+    position: absolute;
+    top: 1px;
+    left: 1px;
+    width: 14px;
+    height: 14px;
+    background-color: var(--text-secondary);
+    border-radius: 50%;
+    transition: transform 0.2s ease;
+}
+
+.vim-toggle-checkbox:checked {
+    background-color: var(--primary);
+    border-color: var(--primary);
+}
+
+.vim-toggle-checkbox:checked::before {
+    background-color: white;
+    transform: translateX(14px);
+}
+
