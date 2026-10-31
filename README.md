@@ -21,3 +21,7 @@ R2 multipart upload allows up to 10,000 parts, so the current 8 MiB chunk format
 ## Runtime differences
 
 The hosted Worker does not run the original Go server or external aria2 daemon. The aria2 page is disabled. ZIP extraction is supported; RAR and 7z extraction are not available in this Worker implementation. The Site relies on its private Sites access boundary and stores no bucket credentials in source.
+
+## ChatGPT Sites private authentication
+
+Keep the Site's access mode private in ChatGPT Sites. Sites Dispatch owns sign-in, sign-out and callback routes and supplies the trusted `oai-authenticated-user-id` and `oai-authenticated-user-email` headers to authenticated requests. The home page requires a ChatGPT identity and redirects unauthenticated visitors to the Sites-managed sign-in route. The Worker also rejects every `/api/` request without both identity headers and marks the 401 response private and non-cacheable. Local development bypasses these hosted identity checks. No OAuth client secret, session cookie or custom authentication endpoint is needed in this repository; clones should set their own Site access policy in ChatGPT Sites.
